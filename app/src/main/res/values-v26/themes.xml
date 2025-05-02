@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance.ElectroCarrito.Title" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="fontFamily">@font/roboto_full</item>
+        <item name="android:fontWeight">700</item> <!-- Roboto Bold -->
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="TextAppearance.ElectroCarrito.Subtitle" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="fontFamily">@font/roboto_full</item>
+        <item name="android:fontWeight">300</item> <!-- Roboto Light -->
+        <item name="android:textColor">@color/gray_dark</item>
+    </style>
+
+    <style name="TextAppearance.ElectroCarrito.Body" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="fontFamily">@font/roboto_full</item>
+        <item name="android:fontWeight">400</item> <!-- Roboto Regular -->
+        <item name="android:textColor">@color/gray_dark</item>
+    </style>
+
+    <style name="TextAppearance.ElectroCarrito.Button" parent="TextAppearance.MaterialComponents.Button">
+        <item name="fontFamily">@font/roboto_full</item>
+        <item name="android:fontWeight">500</item> <!-- Roboto Medium -->
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- Superposición para AppBar -->
+    <style name="Theme.ElectroCarrito.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+
+    <!-- Superposición para Popups -->
+    <style name="Theme.ElectroCarrito.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+</resources>

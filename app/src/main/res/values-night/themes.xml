@@ -1,0 +1,52 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.ElectroCarrito" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Fuente predeterminada -->
+        <item name="fontFamily">@font/roboto_full</item>
+        <!-- Colores principales -->
+        <item name="colorPrimary">@color/blue_dark</item>
+        <item name="colorPrimaryVariant">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/green_dark</item>
+        <item name="colorSecondaryVariant">@color/black</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <!-- Fondo y texto -->
+        <item name="android:colorBackground">@color/black</item>
+        <item name="android:textColorPrimary">@color/gray_light</item>
+        <item name="android:textColorSecondary">@color/gray_dark</item>
+        <!-- Barra de estado -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+    </style>
+
+    <style name="Theme.ElectroCarrito.NoActionBar" parent="Theme.ElectroCarrito">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Superposición para AppBar -->
+    <style name="Theme.ElectroCarrito.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
+
+    <!-- Superposición para Popups -->
+    <style name="Theme.ElectroCarrito.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Dark" />
+
+    <style name="Widget.ElectroCarrito.OAuthButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">@font/roboto_full</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:drawablePadding">8dp</item>
+    </style>
+
+    <style name="Widget.ElectroCarrito.OAuthButton.Google" parent="Widget.ElectroCarrito.OAuthButton">
+        <item name="android:backgroundTint">@color/google_red_dark</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:drawableStart">@drawable/ic_google</item>
+    </style>
+
+    <style name="Widget.ElectroCarrito.OAuthButton.Facebook" parent="Widget.ElectroCarrito.OAuthButton">
+        <item name="android:backgroundTint">@color/facebook_blue_dark</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:drawableStart">@drawable/ic_facebook</item>
+    </style>
+</resources>
