@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.android.electrocarrito.MainActivity
 import com.android.electrocarrito.R
 import com.android.electrocarrito.dto.CartItem
 
@@ -39,23 +40,32 @@ class CartAdapter(
         holder.productImage.setImageResource(cartItem.product.image)
 
         holder.increaseButton.setOnClickListener {
-            cartItem.quantity++
-            holder.productQuantity.text = "Qty: ${cartItem.quantity}"
-            onQuantityChanged(calculateTotalPrice())
+            showConfirmationDialog(holder.itemView, "incrementar un producto") {
+                cartItem.quantity++
+                holder.productQuantity.text = "Qty: ${cartItem.quantity}"
+                onQuantityChanged(calculateTotalPrice())
+                (holder.itemView.context as MainActivity).addBadge(R.id.nav_shopping)
+            }
         }
 
         holder.decreaseButton.setOnClickListener {
             if (cartItem.quantity > 1) {
-                cartItem.quantity--
-                holder.productQuantity.text = "Qty: ${cartItem.quantity}"
-                onQuantityChanged(calculateTotalPrice())
+                showConfirmationDialog(holder.itemView, "quitar un producto") {
+                    cartItem.quantity--
+                    holder.productQuantity.text = "Qty: ${cartItem.quantity}"
+                    onQuantityChanged(calculateTotalPrice())
+                    (holder.itemView.context as MainActivity).removeBadge(R.id.nav_shopping)
+                }
             }
         }
 
         holder.deleteIcon.setOnClickListener {
-            cartItems.removeAt(position)
-            notifyItemRemoved(position)
-            updateTotalPrice()
+            showConfirmationDialog(holder.itemView, "remover el producto del carrito") {
+                cartItems.removeAt(position)
+                notifyItemRemoved(position)
+                updateTotalPrice()
+                (holder.itemView.context as MainActivity).removeBadge(R.id.nav_shopping)
+            }
         }
     }
 
@@ -68,5 +78,15 @@ class CartAdapter(
 
     private fun calculateTotalPrice(): Double {
         return cartItems.sumOf { it.product.price.toDouble() * it.quantity }
+    }
+
+    private fun showConfirmationDialog(view: View, action: String, onConfirm: () -> Unit) {
+        val context = view.context
+        val builder = androidx.appcompat.app.AlertDialog.Builder(context)
+        builder.setTitle("Confirmar acción")
+        builder.setMessage("¿Está seguro que desea $action?")
+        builder.setPositiveButton("Yes") { _, _ -> onConfirm() }
+        builder.setNegativeButton("No", null)
+        builder.show()
     }
 }

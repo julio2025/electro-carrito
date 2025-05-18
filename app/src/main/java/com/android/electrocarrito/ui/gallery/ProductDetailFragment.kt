@@ -8,6 +8,8 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
+import com.android.electrocarrito.MainActivity
 import com.android.electrocarrito.R
 
 class ProductDetailFragment : Fragment() {
@@ -39,6 +41,9 @@ class ProductDetailFragment : Fragment() {
         // Acción para agregar al carrito
         addToCartButton.setOnClickListener {
             // Lógica para agregar al carrito
+            (requireActivity() as MainActivity).addBadge(R.id.nav_shopping)
+            // Navegar al carrito
+            view.findNavController().navigate(R.id.action_productDetailFragment_to_nav_shopping)
         }
 
         return view
