@@ -33,9 +33,24 @@ class ShoppingFragment : Fragment() {
 
         // Datos ficticios
         val sampleProducts = listOf(
-            CartItem(Product(R.drawable.product1, "Product 1", "Description 1", "10.00"), 2),
-            CartItem(Product(R.drawable.product2, "Product 2", "Description 2", "20.00"), 1),
-            CartItem(Product(R.drawable.product3, "Product 3", "Description 3", "15.50"), 3)
+            CartItem(Product(
+                image = "https://images.samsung.com/is/image/samsung/p6pim/pe/rt38k5932sl-pe/gallery/pe-top-mount-freezer-rt38k5932sl-pe-002-front-silver-zoom.jpg",
+                name = "Refrigeradora Samsung RT38K5932SL",
+                description = "Refrigeradora No Frost de 384L con tecnología Twin Cooling Plus.",
+                price = 1599.90
+            ), 2),
+            CartItem(Product(
+                image = "https://images.samsung.com/is/image/samsung/p6pim/pe/rt38k5932sl-pe/gallery/pe-top-mount-freezer-rt38k5932sl-pe-002-front-silver-zoom.jpg",
+                name = "Refrigeradora Samsung RT38K5932SL",
+                description = "Refrigeradora No Frost de 384L con tecnología Twin Cooling Plus.",
+                price = 1599.90
+            ), 1),
+            CartItem(Product(
+                image = "https://images.samsung.com/is/image/samsung/p6pim/pe/rt38k5932sl-pe/gallery/pe-top-mount-freezer-rt38k5932sl-pe-002-front-silver-zoom.jpg",
+                name = "Refrigeradora Samsung RT38K5932SL",
+                description = "Refrigeradora No Frost de 384L con tecnología Twin Cooling Plus.",
+                price = 1599.90
+            ), 3)
         )
         cartItems.addAll(sampleProducts)
 

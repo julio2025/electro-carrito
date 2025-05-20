@@ -11,8 +11,10 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.android.electrocarrito.MainActivity
 import com.android.electrocarrito.R
+import com.bumptech.glide.Glide
 
 class ProductDetailFragment : Fragment() {
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -26,22 +28,34 @@ class ProductDetailFragment : Fragment() {
         val productPrice: TextView = view.findViewById(R.id.product_price)
         val addToCartButton: Button = view.findViewById(R.id.add_to_cart_button)
 
-        // Obtén los datos del producto desde los argumentos
-        val args = arguments
-        productImage.setImageResource(args?.getInt("image") ?: R.drawable.placeholder)
-        productName.text = args?.getString("name")
-        productDescription.text = args?.getString("description")
-        productPrice.text = args?.getString("price")
+        // Obtiene los datos del producto desde el bundle
+        val imageUrl = arguments?.getString("image")
+        val name = arguments?.getString("name")
+        val description = arguments?.getString("description")
+        val price = arguments?.getString("price")
+
+        // Carga la imagen desde URL con Glide
+        Glide.with(this)
+            .load(imageUrl)
+            .placeholder(R.drawable.placeholder) // mientras carga
+            .error(R.drawable.placeholder)       // si falla
+            .into(productImage)
+
+        // Rellena los textos
+        productName.text = name
+        productDescription.text = description
+        productPrice.text = price
 
         // Acción para volver
         backArrow.setOnClickListener {
-            requireActivity().onBackPressed()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
         // Acción para agregar al carrito
         addToCartButton.setOnClickListener {
-            // Lógica para agregar al carrito
+            // Lógica para agregar al carrito (puedes implementarla si tienes un ViewModel o repo)
             (requireActivity() as MainActivity).addBadge(R.id.nav_shopping)
+
             // Navegar al carrito
             view.findNavController().navigate(R.id.action_productDetailFragment_to_nav_shopping)
         }

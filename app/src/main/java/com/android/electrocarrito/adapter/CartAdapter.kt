@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.electrocarrito.MainActivity
 import com.android.electrocarrito.R
 import com.android.electrocarrito.dto.CartItem
+import com.bumptech.glide.Glide
 
 class CartAdapter(
     private val cartItems: MutableList<CartItem>,
@@ -37,7 +38,16 @@ class CartAdapter(
         holder.productName.text = cartItem.product.name
         holder.productPrice.text = "$${cartItem.product.price}"
         holder.productQuantity.text = "Qty: ${cartItem.quantity}"
-        holder.productImage.setImageResource(cartItem.product.image)
+
+        if (cartItem.product.image.isNotEmpty()) {
+            val imageUrl = cartItem.product.image
+            Glide.with(holder.itemView.context)
+                .load(imageUrl)
+                .placeholder(R.drawable.placeholder)
+                .into(holder.productImage)
+        } else {
+            holder.productImage.setImageResource(R.drawable.placeholder)
+        }
 
         holder.increaseButton.setOnClickListener {
             showConfirmationDialog(holder.itemView, "incrementar un producto") {
@@ -72,7 +82,7 @@ class CartAdapter(
     override fun getItemCount(): Int = cartItems.size
 
     private fun updateTotalPrice() {
-        val totalPrice = cartItems.sumOf { it.product.price.toDouble() * it.quantity }
+        val totalPrice = cartItems.sumOf { it.product.price * it.quantity }
         onQuantityChanged(totalPrice)
     }
 

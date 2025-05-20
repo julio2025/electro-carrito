@@ -11,6 +11,7 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.android.electrocarrito.R
 import com.android.electrocarrito.dto.Product
+import com.bumptech.glide.Glide
 
 class ProductAdapter(private val productList: List<Product>) :
     RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
@@ -30,20 +31,28 @@ class ProductAdapter(private val productList: List<Product>) :
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = productList[position]
-        holder.productImage.setImageResource(product.image)
+
+        Glide.with(holder.itemView.context)
+            .load(product.image)
+            .placeholder(R.drawable.placeholder)
+            .into(holder.productImage)
+
         holder.productName.text = product.name
         holder.productDescription.text = product.description
-        holder.productPrice.text = product.price
+        holder.productPrice.text = "S/ %.2f".format(product.price)
 
         holder.itemView.setOnClickListener {
             val bundle = Bundle().apply {
-                putInt("image", product.image)
+                putString("image", product.image)
                 putString("name", product.name)
                 putString("description", product.description)
-                putString("price", product.price)
+                putString("price", product.price.toString())
             }
 
-            holder.itemView.findNavController().navigate(R.id.action_nav_gallery_to_product_detail_fragment, bundle)
+            holder.itemView.findNavController().navigate(
+                R.id.action_nav_gallery_to_product_detail_fragment,
+                bundle
+            )
         }
     }
 
