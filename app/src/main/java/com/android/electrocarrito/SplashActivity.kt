@@ -4,6 +4,16 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
+import com.android.electrocarrito.dao.AppDatabase
+import com.android.electrocarrito.dao.Producto
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.Volley
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
@@ -11,11 +21,49 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        // Simula un retraso para mostrar el splash
-        window.decorView.postDelayed({
-            val intent = Intent(this, WelcomeActivity::class.java)
-            startActivity(intent)
-            finish()
-        }, 3000) // 3 segundos
+        val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "electrocarrito-db"
+        ).build()
+
+        val queue = Volley.newRequestQueue(this)
+        val url = "https://i66aeqax65.execute-api.us-east-1.amazonaws.com/v1/productos"
+
+        val request = JsonArrayRequest(
+            Request.Method.GET, url, null,
+            { response ->
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        db.productoDao().deleteAll()
+                        for (i in 0 until response.length()) {
+                            val item = response.getJSONObject(i)
+                            val producto = Producto(
+                                id = 0, // Room will auto-generate
+                                nombre = item.getString("nombre"),
+                                descripcion = item.getString("descripcion"),
+                                precio = item.getDouble("precio"),
+                                stock = item.getInt("stock"),
+                                imagen = item.getString("imagen")
+                            )
+                            db.productoDao().insert(producto)
+                        }
+                    }
+                    // Continue to next activity after data is saved
+                    startNextActivity()
+                }
+            },
+            { error ->
+                // Handle error, then continue
+                startNextActivity()
+            }
+        )
+
+        queue.add(request)
+    }
+
+    private fun startNextActivity() {
+        val intent = Intent(this, WelcomeActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 }
