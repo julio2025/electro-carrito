@@ -9,6 +9,6 @@ data class Orden(
     val id_usuario: Int,
     val fecha: String,
     val estado: String,
-    val total: Double,
+    var total: Double,
     val vigente: Boolean
 )

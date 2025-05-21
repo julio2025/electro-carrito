@@ -35,12 +35,12 @@ class CartAdapter(
 
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val cartItem = cartItems[position]
-        holder.productName.text = cartItem.product.name
-        holder.productPrice.text = "$${cartItem.product.price}"
+        holder.productName.text = cartItem.product.nombre
+        holder.productPrice.text = "$${cartItem.product.precio}"
         holder.productQuantity.text = "Qty: ${cartItem.quantity}"
 
-        if (cartItem.product.image.isNotEmpty()) {
-            val imageUrl = cartItem.product.image
+        if (cartItem.product.imagen.isNotEmpty()) {
+            val imageUrl = cartItem.product.imagen
             Glide.with(holder.itemView.context)
                 .load(imageUrl)
                 .placeholder(R.drawable.placeholder)
@@ -82,12 +82,12 @@ class CartAdapter(
     override fun getItemCount(): Int = cartItems.size
 
     private fun updateTotalPrice() {
-        val totalPrice = cartItems.sumOf { it.product.price * it.quantity }
+        val totalPrice = cartItems.sumOf { it.product.precio * it.quantity }
         onQuantityChanged(totalPrice)
     }
 
     private fun calculateTotalPrice(): Double {
-        return cartItems.sumOf { it.product.price.toDouble() * it.quantity }
+        return cartItems.sumOf { it.product.precio * it.quantity }
     }
 
     private fun showConfirmationDialog(view: View, action: String, onConfirm: () -> Unit) {

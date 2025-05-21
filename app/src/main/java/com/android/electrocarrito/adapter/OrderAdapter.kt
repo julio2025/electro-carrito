@@ -37,7 +37,7 @@ class OrderAdapter(
         val order = orderList[position]
 
         val totalItems = order.items.sumOf { it.quantity }
-        val totalAmount = order.items.sumOf { it.quantity * it.product.price }
+        val totalAmount = order.items.sumOf { it.quantity * it.product.precio }
         val dateFormatted = order.paymentDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
 
         holder.orderId.text = "Orden #${order.id}"

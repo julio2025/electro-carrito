@@ -36,49 +36,10 @@ class MainActivity : AppCompatActivity() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.setupWithNavController(navController)
 
-        bottomNavigationView.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_logout -> {
-                    AlertDialog.Builder(this)
-                        .setTitle(getString(R.string.cerrar_sesion))
-                        .setMessage("¿Estás seguro de que deseas cerrar sesión?")
-                        .setPositiveButton("Sí") { _, _ ->
-                            val prefs = getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
-                            prefs.edit { clear() }
-
-                            // Clear all Room tables
-                            lifecycleScope.launch (Dispatchers.IO) {
-                                val db = Room.databaseBuilder(
-                                    applicationContext,
-                                    AppDatabase::class.java, "electrocarrito-db"
-                                ).build()
-                                db.clearAllTables()
-                                // Repeat for other DAOs/tables if needed
-
-                                // Switch to main thread to navigate
-                                launch(Dispatchers.Main) {
-                                    val intent = Intent(this@MainActivity, WelcomeActivity::class.java)
-                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                    startActivity(intent)
-                                }
-                            }
-                        }
-                        .setNegativeButton("Cancelar", null)
-                        .show()
-                    true
-                }
-                // Handle other navigation items...
-                else -> false
-            }
-        }
-
         val badge = bottomNavigationView.getOrCreateBadge(R.id.nav_shopping)
 
         // Set up the badge for the shopping cart DAO
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "electrocarrito-db"
-        ).build()
+        val db = AppDatabase.getDatabase(applicationContext)
 
         lifecycleScope.launch(Dispatchers.IO) {
             // GEt lista de ordenes

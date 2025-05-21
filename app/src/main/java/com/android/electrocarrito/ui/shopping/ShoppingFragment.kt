@@ -8,13 +8,17 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 import com.android.electrocarrito.R
 import com.android.electrocarrito.adapter.CartAdapter
+import com.android.electrocarrito.dao.AppDatabase
 import com.android.electrocarrito.dto.CartItem
-import com.android.electrocarrito.dto.Product
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ShoppingFragment : Fragment() {
 
@@ -31,35 +35,32 @@ class ShoppingFragment : Fragment() {
         totalPriceTextView = view.findViewById(R.id.total_price)
         val checkoutButton: Button = view.findViewById(R.id.checkout_button)
 
-        // Datos ficticios
-        val sampleProducts = listOf(
-            CartItem(Product(
-                image = "https://images.samsung.com/is/image/samsung/p6pim/pe/rt38k5932sl-pe/gallery/pe-top-mount-freezer-rt38k5932sl-pe-002-front-silver-zoom.jpg",
-                name = "Refrigeradora Samsung RT38K5932SL",
-                description = "Refrigeradora No Frost de 384L con tecnología Twin Cooling Plus.",
-                price = 1599.90
-            ), 2),
-            CartItem(Product(
-                image = "https://images.samsung.com/is/image/samsung/p6pim/pe/rt38k5932sl-pe/gallery/pe-top-mount-freezer-rt38k5932sl-pe-002-front-silver-zoom.jpg",
-                name = "Refrigeradora Samsung RT38K5932SL",
-                description = "Refrigeradora No Frost de 384L con tecnología Twin Cooling Plus.",
-                price = 1599.90
-            ), 1),
-            CartItem(Product(
-                image = "https://images.samsung.com/is/image/samsung/p6pim/pe/rt38k5932sl-pe/gallery/pe-top-mount-freezer-rt38k5932sl-pe-002-front-silver-zoom.jpg",
-                name = "Refrigeradora Samsung RT38K5932SL",
-                description = "Refrigeradora No Frost de 384L con tecnología Twin Cooling Plus.",
-                price = 1599.90
-            ), 3)
-        )
-        cartItems.addAll(sampleProducts)
+        val activity = requireActivity()
 
-        val adapter = CartAdapter(cartItems) { totalPrice ->
-            totalPriceTextView.text = "Total: $${"%.2f".format(totalPrice)}"
+        // Cargar CarItem con la orden vigente y los productos del detalle en sqlite mediante Room
+        val db = AppDatabase.getDatabase(activity.applicationContext)
+
+        lifecycleScope.launch (Dispatchers.IO) {
+            val orderCurrent = db.ordenDao().getCurrentOrder()
+
+            if (orderCurrent.isEmpty()) {
+                return@launch
+            }
+
+            val orderDetalle = db.ordenDetalleDao().getByOrderId(orderCurrent[0].id)
+
+            for (item in orderDetalle) {
+                val product = db.productoDao().getById(item.id_producto)
+                cartItems.add(CartItem(product, item.cantidad))
+            }
+
+            val adapter = CartAdapter(cartItems) { totalPrice ->
+                totalPriceTextView.text = "Total: $${"%.2f".format(totalPrice)}"
+            }
+
+            recyclerView.layoutManager = LinearLayoutManager(context)
+            recyclerView.adapter = adapter
         }
-
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = adapter
 
         // Navegar al fragmento de Checkout
         checkoutButton.setOnClickListener {

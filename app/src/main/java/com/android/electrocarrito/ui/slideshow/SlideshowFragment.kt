@@ -12,20 +12,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.electrocarrito.R
 import com.android.electrocarrito.adapter.OrderAdapter
+import com.android.electrocarrito.dao.Producto
 import com.android.electrocarrito.dto.CartItem
 import com.android.electrocarrito.dto.Order
 import com.android.electrocarrito.dto.OrderStatus
 import com.android.electrocarrito.dto.PaymentMethod
-import com.android.electrocarrito.dto.Product
 import java.time.LocalDate
 
 class SlideshowFragment : Fragment() {
 
-    private val sampleProduct = Product(
-        image = "https://www.lg.com/content/dam/channel/wcms/pe/images/refrigeradoras/gs66sgp/gallery/DZ-01.jpg/_jcr_content/renditions/thum-1600x1062.jpeg", // usa un drawable genérico o de prueba
-        name = "Refrigeradora Samsung",
-        description = "Frío inteligente de 500L",
-        price = 45.0
+    private val sampleProduct = Producto(
+        imagen = "https://www.lg.com/content/dam/channel/wcms/pe/images/refrigeradoras/gs66sgp/gallery/DZ-01.jpg/_jcr_content/renditions/thum-1600x1062.jpeg", // usa un drawable genérico o de prueba
+        nombre = "Refrigeradora Samsung",
+        descripcion = "Frío inteligente de 500L",
+        precio = 45.0,
+        stock = 3
     )
 
     @RequiresApi(Build.VERSION_CODES.O)

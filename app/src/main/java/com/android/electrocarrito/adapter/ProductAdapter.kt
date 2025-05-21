@@ -10,10 +10,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.android.electrocarrito.R
+import com.android.electrocarrito.dao.Producto
 import com.android.electrocarrito.dto.Product
 import com.bumptech.glide.Glide
 
-class ProductAdapter(private val productList: List<Product>) :
+class ProductAdapter(private val productList: List<Producto>) :
     RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -33,20 +34,21 @@ class ProductAdapter(private val productList: List<Product>) :
         val product = productList[position]
 
         Glide.with(holder.itemView.context)
-            .load(product.image)
+            .load(product.imagen)
             .placeholder(R.drawable.placeholder)
             .into(holder.productImage)
 
-        holder.productName.text = product.name
-        holder.productDescription.text = product.description
-        holder.productPrice.text = "S/ %.2f".format(product.price)
+        holder.productName.text = product.nombre
+        holder.productDescription.text = product.descripcion
+        holder.productPrice.text = "S/ %.2f".format(product.precio)
 
         holder.itemView.setOnClickListener {
             val bundle = Bundle().apply {
-                putString("image", product.image)
-                putString("name", product.name)
-                putString("description", product.description)
-                putString("price", product.price.toString())
+                putInt("id", product.id)
+                putString("image", product.imagen)
+                putString("name", product.nombre)
+                putString("description", product.descripcion)
+                putString("price", product.precio.toString())
             }
 
             holder.itemView.findNavController().navigate(

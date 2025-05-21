@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface OrdenDao {
@@ -14,7 +15,10 @@ interface OrdenDao {
     fun getCurrentOrder(): List<Orden>
 
     @Insert
-    fun insert(orden: Orden)
+    fun insert(orden: Orden): Long
+
+    @Update
+    fun update(orden: Orden)
 
     @Delete
     fun delete(orden: Orden)

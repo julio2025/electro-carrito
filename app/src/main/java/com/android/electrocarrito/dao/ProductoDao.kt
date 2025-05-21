@@ -11,6 +11,9 @@ interface ProductoDao {
     @Query("SELECT * FROM productos")
     fun getAll(): List<Producto>
 
+    @Query("SELECT * FROM productos WHERE id = :id")
+    fun getById(id: Int): Producto
+
     @Insert
     fun insert(product: Producto)
 
