@@ -13,4 +13,5 @@
     <string name="menu_checkout">Chekout</string>
     <string name="menu_orders">Historial de pedidos</string>
     <string name="menu_logout">Cerrar Sesión</string>
+    <string name="cerrar_sesion">Cerrar Sesión</string>
 </resources>

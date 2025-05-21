@@ -42,8 +42,16 @@ class RegisterActivity : AppCompatActivity() {
             val request = object : JsonObjectRequest(
                 Method.POST, url, jsonObject,
                 Response.Listener { response ->
-                    // Procesar respuesta
-                    Log.d("API_RESPONSE", response.toString())
+
+                    val errorMessage = response.getString("errorMessage")
+
+                    if (errorMessage.isNotEmpty()) {
+                        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this, LoginActivity::class.java)
+                        startActivity(intent)
+                    }
                 },
                 Response.ErrorListener { error ->
                     Log.e("API_ERROR", error.toString())

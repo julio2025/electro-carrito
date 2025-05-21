@@ -10,6 +10,9 @@ interface OrdenDetalleDao {
     @Query("SELECT * FROM orden_detalle")
     fun getAll(): List<OrdenDetalle>
 
+    @Query("SELECT * FROM orden_detalle WHERE id_orden = :id_orden")
+    fun getByOrderId(id_orden: Int): List<OrdenDetalle>
+
     @Insert
     fun insert(orden_detalle: OrdenDetalle)
 

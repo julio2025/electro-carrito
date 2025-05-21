@@ -24,12 +24,6 @@ class LoginActivity : AppCompatActivity() {
         val editPass = findViewById<EditText>(R.id.password)
         val btnLogin = findViewById<Button>(R.id.loginButton)
 
-        val prefs = getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
-        if (prefs.getBoolean("is_authenticated", false)) {
-            goToMain()
-            return
-        }
-
         btnLogin.setOnClickListener {
             val user = editUser.text.toString()
             val pass = editPass.text.toString()
@@ -41,9 +35,15 @@ class LoginActivity : AppCompatActivity() {
                 { response ->
                     val json = JSONObject(response)
                     val exito = json.getBoolean("exito")
+                    val id = json.getInt("id")
 
                     if (exito) {
-                        prefs.edit { putBoolean("is_authenticated", true) }
+                        val prefs = getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                        prefs.edit {
+                            putBoolean("is_authenticated", true)
+                            putInt("id_usuario", id)
+                        }
+
                         goToMain()
                     } else {
                         Log.i("API_URL", url)
@@ -68,4 +68,6 @@ class LoginActivity : AppCompatActivity() {
         startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
+
+
 }

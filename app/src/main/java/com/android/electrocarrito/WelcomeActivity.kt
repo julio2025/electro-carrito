@@ -1,5 +1,6 @@
 package com.android.electrocarrito
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -11,17 +12,15 @@ class WelcomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_welcome)
 
+        val prefs = getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+        if (prefs.getBoolean("is_authenticated", false)) {
+            goToMain()
+        }
+
         // Botón "Iniciar Sesión"
         val loginButton: Button = findViewById(R.id.btn_login)
         loginButton.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-        }
-
-        // Botón "Continuar como invitado"
-        val guestButton: Button = findViewById(R.id.btn_guest)
-        guestButton.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
 
@@ -32,5 +31,10 @@ class WelcomeActivity : AppCompatActivity() {
             val intent = Intent(this, RegisterActivity::class.java) // Cambia a tu actividad de registro
             startActivity(intent)
         }
+    }
+
+    private fun goToMain() {
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
     }
 }
