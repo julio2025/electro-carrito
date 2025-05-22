@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface OrdenDetalleDao {
@@ -15,6 +16,9 @@ interface OrdenDetalleDao {
 
     @Insert
     fun insert(orden_detalle: OrdenDetalle)
+
+    @Update
+    fun update(orden_detalle: OrdenDetalle)
 
     @Delete
     fun delete(orden_detalle: OrdenDetalle)

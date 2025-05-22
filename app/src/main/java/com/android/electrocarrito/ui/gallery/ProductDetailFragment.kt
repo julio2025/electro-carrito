@@ -1,5 +1,6 @@
 package com.android.electrocarrito.ui.gallery
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -26,6 +27,7 @@ import java.util.Locale
 
 class ProductDetailFragment : Fragment() {
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -56,7 +58,7 @@ class ProductDetailFragment : Fragment() {
         // Rellena los textos
         productName.text = name
         productDescription.text = description
-        productPrice.text = price
+        productPrice.text = "S/ $price"
 
         // Acción para volver
         backArrow.setOnClickListener {
@@ -94,8 +96,17 @@ class ProductDetailFragment : Fragment() {
                     val currentOrder = orderCurrent[0]
                     currentOrder.total += price?.toDouble() ?: 0.0
                     db.ordenDao().update(currentOrder)
-                }
 
+                    val orderDetalle = db.ordenDetalleDao().getByOrderId(currentOrder.id)
+
+                    for (item in orderDetalle) {
+                        if (item.id_producto == id_producto) {
+                            item.cantidad += 1
+                            db.ordenDetalleDao().update(item)
+                            break
+                        }
+                    }
+                }
 
                 // Switch to main thread to update UI or navigate
                 launch(Dispatchers.Main) {
@@ -103,12 +114,6 @@ class ProductDetailFragment : Fragment() {
                     view.findNavController().navigate(R.id.action_productDetailFragment_to_nav_shopping)
                 }
             }
-
-            // Lógica para agregar al carrito (puedes implementarla si tienes un ViewModel o repo)
-            (requireActivity() as MainActivity).addBadge(R.id.nav_shopping)
-
-            // Navegar al carrito
-            view.findNavController().navigate(R.id.action_productDetailFragment_to_nav_shopping)
         }
 
         return view

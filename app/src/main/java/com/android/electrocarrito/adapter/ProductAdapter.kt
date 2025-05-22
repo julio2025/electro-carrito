@@ -1,5 +1,6 @@
 package com.android.electrocarrito.adapter
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +15,7 @@ import com.android.electrocarrito.dao.Producto
 import com.android.electrocarrito.dto.Product
 import com.bumptech.glide.Glide
 
-class ProductAdapter(private val productList: List<Producto>) :
+class ProductAdapter(private var productList: List<Producto>) :
     RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -59,4 +60,10 @@ class ProductAdapter(private val productList: List<Producto>) :
     }
 
     override fun getItemCount(): Int = productList.size
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateData(newList: List<Producto>) {
+        productList = newList
+        notifyDataSetChanged()
+    }
 }

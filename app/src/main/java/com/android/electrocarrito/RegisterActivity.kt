@@ -3,18 +3,14 @@ package com.android.electrocarrito
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.android.volley.Request
 import com.android.volley.Response
-import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import org.json.JSONException
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
 import org.json.JSONObject
 
 class RegisterActivity : AppCompatActivity() {
@@ -22,14 +18,14 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        val nameField: EditText = findViewById(R.id.et_name)
-        val emailField: EditText = findViewById(R.id.et_email)
-        val passwordField: EditText = findViewById(R.id.et_password)
-        val registerButton: Button = findViewById(R.id.btn_register)
-        val loginLink: TextView = findViewById(R.id.tv_login_link)
+        val nameField = findViewById<TextInputEditText>(R.id.name)
+        val usernameField = findViewById<TextInputEditText>(R.id.username)
+        val passwordField = findViewById<TextInputEditText>(R.id.password)
+        val registerButton = findViewById<MaterialButton>(R.id.registerButton)
+        val loginLink = findViewById<TextView>(R.id.loginLink)
 
         registerButton.setOnClickListener {
-            val user = emailField.text.toString()
+            val user = usernameField.text.toString()
             val pass = passwordField.text.toString()
             val name = nameField.text.toString()
 

@@ -41,17 +41,31 @@ class GalleryFragment : Fragment() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             val db = AppDatabase.getDatabase(activity.applicationContext)
-
             productList = db.productoDao().getAll()
-            Log.i("====>Count", productList.size.toString())
             withContext(Dispatchers.Main) {
                 adapter = ProductAdapter(productList)
                 recyclerView.adapter = adapter
+
+                // Set up search functionality
+                searchBar.addTextChangedListener { text ->
+                    filterProducts(text.toString())
+                }
             }
         }
 
         recyclerView.layoutManager = GridLayoutManager(context, 2)
 
         return view
+    }
+
+    private fun filterProducts(query: String) {
+        val filteredList = if (query.isEmpty()) {
+            productList
+        } else {
+            productList.filter {
+                it.nombre.contains(query, ignoreCase = true)
+            }
+        }
+        adapter.updateData(filteredList)
     }
 }

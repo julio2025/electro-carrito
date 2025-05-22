@@ -1,6 +1,7 @@
 package com.android.electrocarrito.ui.shopping
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +13,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import com.android.electrocarrito.R
 import com.android.electrocarrito.adapter.CartAdapter
 import com.android.electrocarrito.dao.AppDatabase
@@ -49,6 +49,7 @@ class ShoppingFragment : Fragment() {
             val orderDetalle = db.ordenDetalleDao().getByOrderId(orderCurrent[0].id)
 
             for (item in orderDetalle) {
+                Log.i("===>", "Item: ${item.id_producto} - Cantidad: ${item.cantidad}")
                 val product = db.productoDao().getById(item.id_producto)
                 cartItems.add(CartItem(product, item.cantidad))
             }
@@ -63,8 +64,31 @@ class ShoppingFragment : Fragment() {
 
         // Navegar al fragmento de Checkout
         checkoutButton.setOnClickListener {
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                val db = AppDatabase.getDatabase(requireContext())
+                val productos = db.productoDao().getAll()
+                for (producto in productos) {
+                    Log.d("DB_LOG", producto.toString())
+                }
+
+                val ordenes = db.ordenDao().getAll()
+                for (orden in ordenes) {
+                    Log.d("DB_LOG", orden.toString())
+                }
+
+                val ordenDetalles = db.ordenDetalleDao().getAll()
+                for (ordenDetalle in ordenDetalles) {
+                    Log.d("DB_LOG", ordenDetalle.toString())
+                }
+
+            }
+
+            /*
             val bundle = Bundle()
             view?.findNavController()?.navigate(R.id.action_nav_shopping_to_nav_checkout, bundle)
+            */
+
         }
 
         return view

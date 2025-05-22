@@ -30,8 +30,6 @@ class SplashActivity : AppCompatActivity() {
             Request.Method.GET, url, null,
             { response ->
 
-                Log.i("===>Response: ", response.toString())
-
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
                         val db = AppDatabase.getDatabase(applicationContext)
@@ -40,9 +38,12 @@ class SplashActivity : AppCompatActivity() {
 
                         db.productoDao().deleteAll()
                         for (i in 0 until jsonArray.length()) {
+
+
+
                             val item = jsonArray.getJSONObject(i)
                             val producto = Producto(
-                                id = 0, // Room will auto-generate
+                                id = item.getInt("id_producto"),
                                 nombre = item.getString("nombre"),
                                 descripcion = item.getString("descripcion"),
                                 precio = item.getDouble("precio"),

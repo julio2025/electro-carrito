@@ -8,6 +8,6 @@ data class OrdenDetalle(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val id_orden: Int,
     val id_producto: Int,
-    val cantidad: Int,
+    var cantidad: Int,
     val precio: Double
 )
