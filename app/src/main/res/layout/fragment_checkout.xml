@@ -26,7 +26,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center"
             android:layout_marginBottom="24dp">
 
             <!-- VISA -->
@@ -95,11 +94,12 @@
 
         <!-- Campos de tarjeta con estilo de Material -->
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/card_number_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Número de tarjeta"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:boxStrokeColor="@color/green_600"
+            app:boxStrokeColor="@color/blue_primary"
             android:layout_marginBottom="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -110,11 +110,12 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/card_expiry_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Fecha de vencimiento (MM/AA)"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:boxStrokeColor="@color/green_600"
+            app:boxStrokeColor="@color/blue_primary"
             android:layout_marginBottom="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -129,13 +130,14 @@
             android:layout_height="wrap_content"
             android:hint="CVV"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:boxStrokeColor="@color/green_600"
+            app:boxStrokeColor="@color/blue_primary"
             android:layout_marginBottom="32dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/card_cvv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxLength="4"
                 android:inputType="numberPassword" />
         </com.google.android.material.textfield.TextInputLayout>
 
