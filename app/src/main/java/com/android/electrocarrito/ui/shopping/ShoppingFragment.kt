@@ -1,5 +1,6 @@
 package com.android.electrocarrito.ui.shopping
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -25,6 +26,7 @@ class ShoppingFragment : Fragment() {
     private val cartItems = mutableListOf<CartItem>() // Replace with your data source
     private lateinit var totalPriceTextView: TextView
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -54,8 +56,29 @@ class ShoppingFragment : Fragment() {
                 cartItems.add(CartItem(product, item.cantidad))
             }
 
-            val adapter = CartAdapter(cartItems) { totalPrice ->
-                totalPriceTextView.text = "Total: $${"%.2f".format(totalPrice)}"
+            // Calcular el precio total
+            var totalPrice = 0.0
+            for (cartItem in cartItems) {
+                totalPrice += cartItem.product.precio * cartItem.quantity
+            }
+            totalPriceTextView.text = "Total: $${"%.2f".format(totalPrice)}"
+
+            val adapter = CartAdapter(cartItems, { newTotalPrice ->
+                totalPriceTextView.text = "Total: $${"%.2f".format(newTotalPrice)}"
+            }, { cartItem, newQuantity ->
+                // update quantity logic
+            }) { cartItem ->
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val db = AppDatabase.getDatabase(requireContext())
+                    val orderCurrent = db.ordenDao().getCurrentOrder()
+                    if (orderCurrent.isNotEmpty()) {
+                        val ordenDetalle = db.ordenDetalleDao().getByOrderId(orderCurrent[0].id)
+                            .find { it.id_producto == cartItem.product.id }
+                        if (ordenDetalle != null) {
+                            db.ordenDetalleDao().delete(ordenDetalle)
+                        }
+                    }
+                }
             }
 
             recyclerView.layoutManager = LinearLayoutManager(context)
@@ -66,6 +89,8 @@ class ShoppingFragment : Fragment() {
         checkoutButton.setOnClickListener {
 
             lifecycleScope.launch(Dispatchers.IO) {
+
+                /*
                 val db = AppDatabase.getDatabase(requireContext())
                 val productos = db.productoDao().getAll()
                 for (producto in productos) {
@@ -81,14 +106,11 @@ class ShoppingFragment : Fragment() {
                 for (ordenDetalle in ordenDetalles) {
                     Log.d("DB_LOG", ordenDetalle.toString())
                 }
-
+                */
             }
 
-            /*
             val bundle = Bundle()
             view?.findNavController()?.navigate(R.id.action_nav_shopping_to_nav_checkout, bundle)
-            */
-
         }
 
         return view

@@ -2,12 +2,14 @@ package com.android.electrocarrito.ui.gallery
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -91,27 +93,51 @@ class ProductDetailFragment : Fragment() {
                             it1, 1, price?.toDouble() ?: 0.0)
                     }
 
+                    Log.i("DB_LOG", "Registro Orden Detalle: ${newOrdenDetalle.toString()}" )
                     db.ordenDetalleDao().insert(newOrdenDetalle!!)
                 } else {
+
                     val currentOrder = orderCurrent[0]
                     currentOrder.total += price?.toDouble() ?: 0.0
                     db.ordenDao().update(currentOrder)
 
                     val orderDetalle = db.ordenDetalleDao().getByOrderId(currentOrder.id)
+                    var found = false
+                    var newOrdenDetalle: OrdenDetalle? = null
 
                     for (item in orderDetalle) {
                         if (item.id_producto == id_producto) {
-                            item.cantidad += 1
-                            db.ordenDetalleDao().update(item)
+                            found = true
+                            newOrdenDetalle = item
                             break
                         }
+                    }
+
+                    if (found && newOrdenDetalle != null) {
+                        // Si el producto ya existe en la orden, actualiza la cantidad
+                        newOrdenDetalle.cantidad += 1
+                        db.ordenDetalleDao().update(newOrdenDetalle)
+                    } else {
+                        // Si el producto no existe, crea un nuevo detalle de orden
+                        newOrdenDetalle = id_producto?.let { it1 ->
+                            OrdenDetalle(0, currentOrder.id,
+                                it1, 1, price?.toDouble() ?: 0.0)
+                        }
+
+                        db.ordenDetalleDao().insert(newOrdenDetalle!!)
                     }
                 }
 
                 // Switch to main thread to update UI or navigate
                 launch(Dispatchers.Main) {
                     (activity as MainActivity).addBadge(R.id.nav_shopping)
-                    view.findNavController().navigate(R.id.action_productDetailFragment_to_nav_shopping)
+                    //view.findNavController().navigate(R.id.action_productDetailFragment_to_nav_shopping)
+                    Toast.makeText(
+                        activity,
+                        "Producto agregado al carrito",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    backArrow.callOnClick()
                 }
             }
         }

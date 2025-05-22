@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             val db = AppDatabase.getDatabase(applicationContext)
 
-            // GEt lista de ordenes
             val orderCurrent = db.ordenDao().getCurrentOrder()
             val shoppingCartCount: Int
 
@@ -49,7 +48,9 @@ class MainActivity : AppCompatActivity() {
                 shoppingCartCount = 0
             } else {
                 val orderId = orderCurrent[0].id
-                shoppingCartCount = db.ordenDetalleDao().getByOrderId(orderId).count()
+                val ordenDetalle = db.ordenDetalleDao().getByOrderId(orderId)
+
+                shoppingCartCount = ordenDetalle.sumOf { it.cantidad }
             }
 
             withContext(Dispatchers.Main) {
@@ -71,14 +72,17 @@ class MainActivity : AppCompatActivity() {
         badge.number += 1
     }
 
-    fun removeBadge(itemId: Int) {
+    fun removeBadge(itemId: Int, many: Int) {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         val badge = bottomNavigationView.getOrCreateBadge(itemId)
 
-        if (badge.number > 0) {
-            badge.number -= 1
-        } else {
+        badge.number -= many
+
+        if (badge.number < 0) {
+            badge.number = 0
             badge.isVisible = false
+        } else {
+            badge.isVisible = true
         }
     }
 }

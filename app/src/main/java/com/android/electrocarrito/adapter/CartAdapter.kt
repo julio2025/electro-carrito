@@ -1,5 +1,6 @@
 package com.android.electrocarrito.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,6 +8,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.util.performSuspending
 import com.android.electrocarrito.MainActivity
 import com.android.electrocarrito.R
 import com.android.electrocarrito.dto.CartItem
@@ -14,7 +16,9 @@ import com.bumptech.glide.Glide
 
 class CartAdapter(
     private val cartItems: MutableList<CartItem>,
-    private val onQuantityChanged: (Double) -> Unit
+    private val onQuantityChanged: (Double) -> Unit,
+    private val onUpdateQuantity: (CartItem, Int) -> Unit,
+    private val onDeleteItem: (CartItem) -> Unit
 ) : RecyclerView.Adapter<CartAdapter.CartViewHolder>() {
 
     inner class CartViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -33,10 +37,11 @@ class CartAdapter(
         return CartViewHolder(view)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val cartItem = cartItems[position]
         holder.productName.text = cartItem.product.nombre
-        holder.productPrice.text = "$${cartItem.product.precio}"
+        holder.productPrice.text = "S/ ${cartItem.product.precio}"
         holder.productQuantity.text = "Qty: ${cartItem.quantity}"
 
         if (cartItem.product.imagen.isNotEmpty()) {
@@ -53,6 +58,7 @@ class CartAdapter(
             showConfirmationDialog(holder.itemView, "incrementar un producto") {
                 cartItem.quantity++
                 holder.productQuantity.text = "Qty: ${cartItem.quantity}"
+                onUpdateQuantity(cartItem, cartItem.quantity)
                 onQuantityChanged(calculateTotalPrice())
                 (holder.itemView.context as MainActivity).addBadge(R.id.nav_shopping)
             }
@@ -63,18 +69,20 @@ class CartAdapter(
                 showConfirmationDialog(holder.itemView, "quitar un producto") {
                     cartItem.quantity--
                     holder.productQuantity.text = "Qty: ${cartItem.quantity}"
+                    onUpdateQuantity(cartItem, cartItem.quantity)
                     onQuantityChanged(calculateTotalPrice())
-                    (holder.itemView.context as MainActivity).removeBadge(R.id.nav_shopping)
+                    (holder.itemView.context as MainActivity).removeBadge(R.id.nav_shopping, 1)
                 }
             }
         }
 
         holder.deleteIcon.setOnClickListener {
             showConfirmationDialog(holder.itemView, "remover el producto del carrito") {
-                cartItems.removeAt(position)
+                val removedItem = cartItems.removeAt(position)
                 notifyItemRemoved(position)
                 updateTotalPrice()
-                (holder.itemView.context as MainActivity).removeBadge(R.id.nav_shopping)
+                onDeleteItem(removedItem)
+                (holder.itemView.context as MainActivity).removeBadge(R.id.nav_shopping, removedItem.quantity)
             }
         }
     }
