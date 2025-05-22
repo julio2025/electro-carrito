@@ -68,10 +68,7 @@ class ProductDetailFragment : Fragment() {
             val activity = requireActivity()
 
             activity.lifecycleScope.launch (Dispatchers.IO) {
-                val db = Room.databaseBuilder(
-                    activity.applicationContext,
-                    AppDatabase::class.java, "electrocarrito-db"
-                ).build()
+                val db = AppDatabase.getDatabase(activity.applicationContext)
 
                 val orderCurrent = db.ordenDao().getCurrentOrder()
                 if (orderCurrent.isEmpty()) {

@@ -23,15 +23,8 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "electrocarrito-db"
-        ).build()
-
         val queue = Volley.newRequestQueue(this)
         val url = "https://i66aeqax65.execute-api.us-east-1.amazonaws.com/v1/productos"
-
-        Log.i("===>Request: ", url)
 
         val request = JsonObjectRequest(
             Request.Method.GET, url, null,
@@ -41,6 +34,7 @@ class SplashActivity : AppCompatActivity() {
 
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
+                        val db = AppDatabase.getDatabase(applicationContext)
 
                         val jsonArray = response.getJSONArray("data")
 
@@ -56,9 +50,6 @@ class SplashActivity : AppCompatActivity() {
                                 imagen = item.getString("imagen")
                             )
                             db.productoDao().insert(producto)
-
-                            // Log the inserted product
-                            println("Inserted product: ${producto.nombre}, ID: ${producto.id}")
                         }
                     }
                     // Continue to next activity after data is saved

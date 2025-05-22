@@ -38,10 +38,9 @@ class MainActivity : AppCompatActivity() {
 
         val badge = bottomNavigationView.getOrCreateBadge(R.id.nav_shopping)
 
-        // Set up the badge for the shopping cart DAO
-        val db = AppDatabase.getDatabase(applicationContext)
-
         lifecycleScope.launch(Dispatchers.IO) {
+            val db = AppDatabase.getDatabase(applicationContext)
+
             // GEt lista de ordenes
             val orderCurrent = db.ordenDao().getCurrentOrder()
             val shoppingCartCount: Int

@@ -39,10 +39,9 @@ class GalleryFragment : Fragment() {
 
         val activity = requireActivity()
 
-        // Get for sqlite with room
-        val db = AppDatabase.getDatabase(activity.applicationContext)
-
         lifecycleScope.launch(Dispatchers.IO) {
+            val db = AppDatabase.getDatabase(activity.applicationContext)
+
             productList = db.productoDao().getAll()
             Log.i("====>Count", productList.size.toString())
             withContext(Dispatchers.Main) {

@@ -37,10 +37,9 @@ class ShoppingFragment : Fragment() {
 
         val activity = requireActivity()
 
-        // Cargar CarItem con la orden vigente y los productos del detalle en sqlite mediante Room
-        val db = AppDatabase.getDatabase(activity.applicationContext)
-
         lifecycleScope.launch (Dispatchers.IO) {
+            val db = AppDatabase.getDatabase(activity.applicationContext)
+
             val orderCurrent = db.ordenDao().getCurrentOrder()
 
             if (orderCurrent.isEmpty()) {
