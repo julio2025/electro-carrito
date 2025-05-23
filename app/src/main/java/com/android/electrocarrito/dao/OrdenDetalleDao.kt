@@ -22,4 +22,7 @@ interface OrdenDetalleDao {
 
     @Delete
     fun delete(orden_detalle: OrdenDetalle)
+
+    @Query("DELETE FROM orden_detalle")
+    fun deleteAll()
 }

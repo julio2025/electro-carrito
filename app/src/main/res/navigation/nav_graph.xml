@@ -39,7 +39,11 @@
         android:id="@+id/nav_checkout"
         android:name="com.android.electrocarrito.ui.shopping.CheckoutFragment"
         android:label="@string/menu_checkout"
-        tools:layout="@layout/fragment_checkout" />
+        tools:layout="@layout/fragment_checkout">
+        <action
+            android:id="@+id/action_checkoutFragment_to_nav_slideshow"
+            app:destination="@id/nav_slideshow" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_slideshow"

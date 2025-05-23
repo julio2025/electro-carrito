@@ -85,4 +85,11 @@ class MainActivity : AppCompatActivity() {
             badge.isVisible = true
         }
     }
+
+    fun clearBadge(itemId: Int) {
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        val badge = bottomNavigationView.getOrCreateBadge(itemId)
+
+        badge.isVisible = false
+    }
 }

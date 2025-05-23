@@ -3,6 +3,7 @@ package com.android.electrocarrito
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -23,8 +24,12 @@ class RegisterActivity : AppCompatActivity() {
         val passwordField = findViewById<TextInputEditText>(R.id.password)
         val registerButton = findViewById<MaterialButton>(R.id.registerButton)
         val loginLink = findViewById<TextView>(R.id.loginLink)
+        val loadingOverlay = findViewById<View>(R.id.loadingOverlay)
 
         registerButton.setOnClickListener {
+            loadingOverlay.visibility = View.VISIBLE
+            registerButton.isEnabled = false
+
             val user = usernameField.text.toString()
             val pass = passwordField.text.toString()
             val name = nameField.text.toString()
@@ -45,6 +50,10 @@ class RegisterActivity : AppCompatActivity() {
                         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show()
+
+                        loadingOverlay.visibility = View.GONE
+                        registerButton.isEnabled = true
+
                         val intent = Intent(this, LoginActivity::class.java)
                         startActivity(intent)
                     }
@@ -54,6 +63,10 @@ class RegisterActivity : AppCompatActivity() {
                     error.networkResponse?.let {
                         Log.e("API_STATUS_CODE", it.statusCode.toString())
                     }
+
+                    Toast.makeText(this, "Error de red", Toast.LENGTH_SHORT).show()
+                    loadingOverlay.visibility = View.GONE
+                    registerButton.isEnabled = true
                 }
             ) {
                 override fun getHeaders(): MutableMap<String, String> {
