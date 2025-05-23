@@ -1,9 +1,8 @@
 package com.android.electrocarrito.dto
 
-import java.time.LocalDate
 import java.time.LocalDateTime
 
-enum class OrderStatus { ATENDIDO, RECHAZADO }
+enum class OrderStatus { ATENDIDO, RECHAZADO, PENDIENTE }
 enum class PaymentMethod { VISA, MASTERCARD, AMEX }
 
 data class Order(

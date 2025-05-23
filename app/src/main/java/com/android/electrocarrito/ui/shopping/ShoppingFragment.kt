@@ -36,6 +36,7 @@ class ShoppingFragment : Fragment() {
         val recyclerView: RecyclerView = view.findViewById(R.id.cart_recycler_view)
         totalPriceTextView = view.findViewById(R.id.total_price)
         val checkoutButton: Button = view.findViewById(R.id.checkout_button)
+        val emptyView: View = view.findViewById(R.id.emptyView)
 
         val activity = requireActivity()
 
@@ -45,10 +46,21 @@ class ShoppingFragment : Fragment() {
             val orderCurrent = db.ordenDao().getCurrentOrder()
 
             if (orderCurrent.isEmpty()) {
+                recyclerView.visibility = View.GONE
+                emptyView.visibility = View.VISIBLE
                 return@launch
             }
 
             val orderDetalle = db.ordenDetalleDao().getByOrderId(orderCurrent[0].id)
+
+            if (orderDetalle.isEmpty()) {
+                recyclerView.visibility = View.GONE
+                emptyView.visibility = View.VISIBLE
+                return@launch
+            }
+
+            recyclerView.visibility = View.VISIBLE
+            emptyView.visibility = View.GONE
 
             for (item in orderDetalle) {
                 Log.i("===>", "Item: ${item.id_producto} - Cantidad: ${item.cantidad}")
@@ -63,23 +75,27 @@ class ShoppingFragment : Fragment() {
             }
             totalPriceTextView.text = "Total: S/ ${"%.2f".format(totalPrice)}"
 
-            val adapter = CartAdapter(cartItems, { newTotalPrice ->
-                totalPriceTextView.text = "Total: S/ ${"%.2f".format(newTotalPrice)}"
-            }, { cartItem, newQuantity ->
-                // update quantity logic
-            }) { cartItem ->
-                lifecycleScope.launch(Dispatchers.IO) {
-                    val db = AppDatabase.getDatabase(requireContext())
-                    val orderCurrent = db.ordenDao().getCurrentOrder()
-                    if (orderCurrent.isNotEmpty()) {
-                        val ordenDetalle = db.ordenDetalleDao().getByOrderId(orderCurrent[0].id)
-                            .find { it.id_producto == cartItem.product.id }
-                        if (ordenDetalle != null) {
-                            db.ordenDetalleDao().delete(ordenDetalle)
+            val adapter = CartAdapter(cartItems,
+                { newTotalPrice -> totalPriceTextView.text = "Total: S/ ${"%.2f".format(newTotalPrice)}" },
+                { cartItem, newQuantity -> },
+                { cartItem ->
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val db = AppDatabase.getDatabase(requireContext())
+                        val orderCurrent = db.ordenDao().getCurrentOrder()
+                        if (orderCurrent.isNotEmpty()) {
+                            val ordenDetalle = db.ordenDetalleDao().getByOrderId(orderCurrent[0].id)
+                                .find { it.id_producto == cartItem.product.id }
+                            if (ordenDetalle != null) {
+                                db.ordenDetalleDao().delete(ordenDetalle)
+                            }
                         }
                     }
+                },
+                {
+                    recyclerView.visibility = View.GONE
+                    emptyView.visibility = View.VISIBLE
                 }
-            }
+            )
 
             recyclerView.layoutManager = LinearLayoutManager(context)
             recyclerView.adapter = adapter
@@ -87,28 +103,6 @@ class ShoppingFragment : Fragment() {
 
         // Navegar al fragmento de Checkout
         checkoutButton.setOnClickListener {
-
-            lifecycleScope.launch(Dispatchers.IO) {
-
-                /*
-                val db = AppDatabase.getDatabase(requireContext())
-                val productos = db.productoDao().getAll()
-                for (producto in productos) {
-                    Log.d("DB_LOG", producto.toString())
-                }
-
-                val ordenes = db.ordenDao().getAll()
-                for (orden in ordenes) {
-                    Log.d("DB_LOG", orden.toString())
-                }
-
-                val ordenDetalles = db.ordenDetalleDao().getAll()
-                for (ordenDetalle in ordenDetalles) {
-                    Log.d("DB_LOG", ordenDetalle.toString())
-                }
-                */
-            }
-
             val bundle = Bundle()
             view?.findNavController()?.navigate(R.id.action_nav_shopping_to_nav_checkout, bundle)
         }

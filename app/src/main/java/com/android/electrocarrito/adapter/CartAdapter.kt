@@ -18,7 +18,8 @@ class CartAdapter(
     private val cartItems: MutableList<CartItem>,
     private val onQuantityChanged: (Double) -> Unit,
     private val onUpdateQuantity: (CartItem, Int) -> Unit,
-    private val onDeleteItem: (CartItem) -> Unit
+    private val onDeleteItem: (CartItem) -> Unit,
+    private val onCartEmpty: () -> Unit
 ) : RecyclerView.Adapter<CartAdapter.CartViewHolder>() {
 
     inner class CartViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -82,7 +83,12 @@ class CartAdapter(
                 notifyItemRemoved(position)
                 updateTotalPrice()
                 onDeleteItem(removedItem)
-                (holder.itemView.context as MainActivity).removeBadge(R.id.nav_shopping, removedItem.quantity)
+                if (cartItems.isEmpty()) {
+                    (holder.itemView.context as MainActivity).clearBadge(R.id.nav_shopping)
+                    onCartEmpty()
+                } else {
+                    (holder.itemView.context as MainActivity).removeBadge(R.id.nav_shopping, removedItem.quantity)
+                }
             }
         }
     }
@@ -103,7 +109,7 @@ class CartAdapter(
         val builder = androidx.appcompat.app.AlertDialog.Builder(context)
         builder.setTitle("Confirmar acción")
         builder.setMessage("¿Está seguro que desea $action?")
-        builder.setPositiveButton("Yes") { _, _ -> onConfirm() }
+        builder.setPositiveButton("Si") { _, _ -> onConfirm() }
         builder.setNegativeButton("No", null)
         builder.show()
     }

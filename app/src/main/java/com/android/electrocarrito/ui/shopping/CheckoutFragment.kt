@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -25,6 +26,7 @@ import com.android.electrocarrito.dao.Pago
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
@@ -62,16 +64,14 @@ class CheckoutFragment : Fragment() {
                 if (isFormatting) return
                 isFormatting = true
 
-                // Remove all non-digit chars
                 val digits = s.toString().replace("\\D".toRegex(), "")
-                // Format with dashes every 4 digits
+
                 val formatted = digits.chunked(4).joinToString("-")
                 if (formatted != s.toString()) {
                     cardNumber.setText(formatted)
                     cardNumber.setSelection(formatted.length)
                 }
 
-                // Validation: must be 16 digits
                 cardNumberLayout.error = if (digits.length == 16) null else "Debe tener 16 dígitos"
 
                 isFormatting = false
@@ -96,7 +96,6 @@ class CheckoutFragment : Fragment() {
                     cardExpiry.setSelection(formatted.length)
                 }
 
-                // Validation: MM/AA, month 01-12, length 5
                 cardExpiryLayout.error = null
                 if (formatted.length == 5) {
                     val month = formatted.substring(0, 2).toIntOrNull()
@@ -131,88 +130,97 @@ class CheckoutFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            viewLifecycleOwner.lifecycleScope.launch (Dispatchers.IO) {
-                withContext(Dispatchers.Main) {
-                    loadingOverlay.visibility = View.VISIBLE
-                    confirmPaymentButton.isEnabled = false
-                }
+            AlertDialog.Builder(requireContext())
+                .setTitle("Confirmar pago")
+                .setMessage("¿Desea confirmar el pago y procesar la orden?")
+                .setPositiveButton("Sí") { _, _ ->
+                    viewLifecycleOwner.lifecycleScope.launch (Dispatchers.IO) {
+                        withContext(Dispatchers.Main) {
+                            loadingOverlay.visibility = View.VISIBLE
+                            confirmPaymentButton.isEnabled = false
+                        }
 
-                // 1. Save payment in SQLite
-                val db = AppDatabase.getDatabase(requireContext())
-                val currentOrden = db.ordenDao().getCurrentOrder()
-                val pago = Pago(
-                    id = 0, // or auto-generated
-                    id_orden = currentOrden[0].id,
-                    red_pago = cardType!!,
-                    numero_tarjeta = number,
-                    exp_date = expiry,
-                    cvv = cvv,
-                    monto = currentOrden[0].total,
-                    estado_pago = "Pagado"
-                )
+                        // 1. Save payment in SQLite
+                        val db = AppDatabase.getDatabase(requireContext())
+                        val currentOrden = db.ordenDao().getCurrentOrder()
+                        val pago = Pago(
+                            id = 0, // or auto-generated
+                            id_orden = currentOrden[0].id,
+                            red_pago = cardType!!,
+                            numero_tarjeta = number,
+                            exp_date = expiry,
+                            cvv = cvv,
+                            monto = currentOrden[0].total,
+                            estado_pago = "Pagado"
+                        )
 
-                withContext(Dispatchers.IO) {
-                    db.pagoDao().insert(pago)
-                }
+                        withContext(Dispatchers.IO) {
+                            db.pagoDao().insert(pago)
+                        }
 
-                // 2. Prepare JSON body
-                val prefs = requireActivity().getSharedPreferences("auth_prefs", AppCompatActivity.MODE_PRIVATE)
-                val id_usuario = prefs.getInt("id_usuario", 0)
+                        // 2. Prepare JSON body
+                        val prefs = requireActivity().getSharedPreferences("auth_prefs", AppCompatActivity.MODE_PRIVATE)
+                        val id_usuario = prefs.getInt("id_usuario", 0)
 
-                val productosArray = withContext(Dispatchers.IO) {
-                    val orderDetalle = db.ordenDetalleDao().getByOrderId(currentOrden[0].id)
-                    JSONArray().apply {
-                        for (item in orderDetalle) {
-                            put(JSONObject().apply {
-                                put("id_producto", item.id_producto)
-                                put("cantidad", item.cantidad)
-                            })
+                        val productosArray = withContext(Dispatchers.IO) {
+                            val orderDetalle = db.ordenDetalleDao().getByOrderId(currentOrden[0].id)
+                            JSONArray().apply {
+                                for (item in orderDetalle) {
+                                    put(JSONObject().apply {
+                                        put("id_producto", item.id_producto)
+                                        put("cantidad", item.cantidad)
+                                    })
+                                }
+                            }
+                        }
+
+                        val jsonBody = JSONObject().apply {
+                            put("id_usuario", id_usuario)
+                            put("total", pago.monto)
+                            put("productos", productosArray)
+                            put("red_pago", pago.red_pago)
+                            put("numero_tarjeta", pago.numero_tarjeta)
+                            put("exp_date", pago.exp_date)
+                            put("cvv", cvv)
+                            put("monto", pago.monto)
+                        }
+
+                        // 3. POST to API
+                        withContext(Dispatchers.Main) {
+                            val queue = Volley.newRequestQueue(requireContext())
+                            val url = "https://i66aeqax65.execute-api.us-east-1.amazonaws.com/v1/orden"
+
+                            val request = JsonObjectRequest(
+                                Request.Method.POST,
+                                url,
+                                jsonBody,
+                                { response ->
+                                    // Get orders by API
+                                    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                                        db.ordenDao().deleteAll()
+                                        db.ordenDetalleDao().deleteAll()
+                                        withContext(Dispatchers.Main) {
+                                            val mainActivity = activity as MainActivity
+                                            mainActivity.clearBadge(R.id.nav_shopping)
+
+                                            getOrdersByAPI(id_usuario)
+                                        }
+                                    }
+                                },
+                                { error ->
+                                    loadingOverlay.visibility = View.GONE
+                                    confirmPaymentButton.isEnabled = true
+                                    Toast.makeText(context, "Error al enviar el pago", Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                            queue.add(request)
                         }
                     }
                 }
+                .setNegativeButton("No", null)
+                .show()
 
-                val jsonBody = JSONObject().apply {
-                    put("id_usuario", id_usuario)
-                    put("total", pago.monto)
-                    put("productos", productosArray)
-                    put("red_pago", pago.red_pago)
-                    put("numero_tarjeta", pago.numero_tarjeta)
-                    put("exp_date", pago.exp_date)
-                    put("cvv", cvv)
-                    put("monto", pago.monto)
-                }
 
-                // 3. POST to API
-                withContext(Dispatchers.Main) {
-                    val queue = Volley.newRequestQueue(requireContext())
-                    val url = "https://i66aeqax65.execute-api.us-east-1.amazonaws.com/v1/orden"
-
-                    val request = JsonObjectRequest(
-                        Request.Method.POST,
-                        url,
-                        jsonBody,
-                        { response ->
-                            // Get orders by API
-                            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
-                                db.ordenDao().deleteAll()
-                                db.ordenDetalleDao().deleteAll()
-                                withContext(Dispatchers.Main) {
-                                    val mainActivity = activity as MainActivity
-                                    mainActivity.clearBadge(R.id.nav_shopping)
-                                    getOrdersByAPI(id_usuario)
-                                    Toast.makeText(context, "Pago procesado y enviado", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        },
-                        { error ->
-                            loadingOverlay.visibility = View.GONE
-                            confirmPaymentButton.isEnabled = true
-                            Toast.makeText(context, "Error al enviar el pago", Toast.LENGTH_SHORT).show()
-                        }
-                    )
-                    queue.add(request)
-                }
-            }
         }
 
         return view
@@ -257,7 +265,14 @@ class CheckoutFragment : Fragment() {
                             confirmPaymentButton.isEnabled = true
                         }
 
-                        view?.findNavController()?.navigate(R.id.action_checkoutFragment_to_nav_slideshow)
+                        Toast.makeText(context, "Pago procesado y enviado", Toast.LENGTH_SHORT).show()
+
+                        //Retornar a ShoppingFragment
+                        val navController = view?.findNavController()
+                        if (navController != null) {
+                            navController.popBackStack(R.id.nav_shopping, false)
+                        }
+
                     }
                 }
             },

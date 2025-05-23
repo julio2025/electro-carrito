@@ -49,10 +49,10 @@ class RegisterActivity : AppCompatActivity() {
                     if (errorMessage.isNotEmpty()) {
                         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show()
-
                         loadingOverlay.visibility = View.GONE
                         registerButton.isEnabled = true
+
+                        Toast.makeText(this, "Registro exitoso", Toast.LENGTH_SHORT).show()
 
                         val intent = Intent(this, LoginActivity::class.java)
                         startActivity(intent)

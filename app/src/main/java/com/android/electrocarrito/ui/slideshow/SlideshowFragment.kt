@@ -41,15 +41,24 @@ class SlideshowFragment : Fragment() {
         val recyclerView: RecyclerView = view.findViewById(R.id.orders_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(context)
         val swipeRefresh = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh)
+        val emptyView = view.findViewById<View>(R.id.emptyView)
 
         fun loadOrdersFromDb() {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                 val db = AppDatabase.getDatabase(requireContext())
                 val ordenes = db.ordenDao().getAll()
+                var fecha: String
 
                 val orders = ordenes.map { orden ->
+                    fecha = orden.fecha
+                    if (orden.vigente) {
+                        val now = LocalDateTime.now()
+                        val formatterNow = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                        fecha = now.format(formatterNow)
+                    }
+
                     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                    val dateTime = LocalDateTime.parse(orden.fecha, formatter)
+                    val dateTime = LocalDateTime.parse(fecha, formatter)
                     val limaZone = ZoneId.of("America/Lima")
                     val zonedDateTime = dateTime.atZone(limaZone)
                     val limaLocalDateTime = zonedDateTime.toLocalDateTime()
@@ -67,24 +76,31 @@ class SlideshowFragment : Fragment() {
                         status = when (orden.estado) {
                             "APROBADO" -> OrderStatus.ATENDIDO
                             "RECHAZADO" -> OrderStatus.RECHAZADO
-                            else -> OrderStatus.ATENDIDO
+                            else -> OrderStatus.PENDIENTE
                         },
                         paymentMethod = when (pago.getOrNull(0)?.red_pago) {
-                            "Visa" -> PaymentMethod.VISA
-                            "Mastercard" -> PaymentMethod.MASTERCARD
-                            "Amex" -> PaymentMethod.AMEX
+                            "VISA" -> PaymentMethod.VISA
+                            "MASTERCARD" -> PaymentMethod.MASTERCARD
+                            "AMEX" -> PaymentMethod.AMEX
                             else -> PaymentMethod.VISA
                         },
                         paymentDate = limaLocalDateTime
                     )
                 }
                 withContext(Dispatchers.Main) {
-                    recyclerView.adapter = OrderAdapter(orders) { selectedOrder ->
-                        Toast.makeText(
-                            requireContext(),
-                            "Ver detalle de orden #${selectedOrder.id}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    if (orders.isEmpty()) {
+                        recyclerView.visibility = View.GONE
+                        emptyView.visibility = View.VISIBLE
+                    } else {
+                        recyclerView.adapter = OrderAdapter(orders) { selectedOrder ->
+                            Toast.makeText(
+                                requireContext(),
+                                "Ver detalle de orden #${selectedOrder.id}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        recyclerView.visibility = View.VISIBLE
+                        emptyView.visibility = View.GONE
                     }
                     swipeRefresh.isRefreshing = false
                 }

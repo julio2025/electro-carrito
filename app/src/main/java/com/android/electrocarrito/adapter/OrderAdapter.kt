@@ -49,12 +49,14 @@ class OrderAdapter(
         holder.status.text = when (order.status) {
             OrderStatus.ATENDIDO -> "Estado: APROBADO"
             OrderStatus.RECHAZADO -> "Estado: RECHAZADO"
+            OrderStatus.PENDIENTE -> "Estado: PENDIENTE"
         }
 
         holder.status.setTextColor(
             when (order.status) {
                 OrderStatus.ATENDIDO -> holder.itemView.context.getColor(R.color.green_600)
                 OrderStatus.RECHAZADO -> holder.itemView.context.getColor(R.color.red_600)
+                OrderStatus.PENDIENTE -> holder.itemView.context.getColor(R.color.yellow_600)
             }
         )
 
