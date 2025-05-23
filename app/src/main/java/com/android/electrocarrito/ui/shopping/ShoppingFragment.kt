@@ -61,10 +61,10 @@ class ShoppingFragment : Fragment() {
             for (cartItem in cartItems) {
                 totalPrice += cartItem.product.precio * cartItem.quantity
             }
-            totalPriceTextView.text = "Total: $${"%.2f".format(totalPrice)}"
+            totalPriceTextView.text = "Total: S/ ${"%.2f".format(totalPrice)}"
 
             val adapter = CartAdapter(cartItems, { newTotalPrice ->
-                totalPriceTextView.text = "Total: $${"%.2f".format(newTotalPrice)}"
+                totalPriceTextView.text = "Total: S/ ${"%.2f".format(newTotalPrice)}"
             }, { cartItem, newQuantity ->
                 // update quantity logic
             }) { cartItem ->

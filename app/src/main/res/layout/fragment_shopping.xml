@@ -15,7 +15,7 @@
         android:id="@+id/total_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Total: $0.00"
+        android:text="Total: S/ 0.00"
         android:textSize="18sp"
         android:textStyle="bold"
         android:gravity="end"

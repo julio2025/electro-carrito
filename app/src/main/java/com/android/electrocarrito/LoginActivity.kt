@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -62,6 +61,8 @@ class LoginActivity : AppCompatActivity() {
                     } else {
                         Log.i("API_URL", url)
                         Toast.makeText(this, "Credenciales incorrectas", Toast.LENGTH_SHORT).show()
+                        loadingOverlay.visibility = View.GONE
+                        loginButton.isEnabled = true
                     }
                 },
                 { error ->
@@ -122,6 +123,7 @@ class LoginActivity : AppCompatActivity() {
             { error ->
                 // Handle error, then continue
                 Log.e("===>Error: ", error.toString())
+
             }
         )
 

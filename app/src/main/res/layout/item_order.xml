@@ -68,10 +68,10 @@
                 android:textColor="#757575" />
 
             <TextView
-                android:id="@+id/textItemCount"
+                android:id="@+id/textTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3 productos"
+                android:text=""
                 android:textSize="14sp"
                 android:textColor="#757575"
                 android:layout_marginTop="2dp" />

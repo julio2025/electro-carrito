@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class SlideshowFragment : Fragment() {
@@ -49,7 +50,9 @@ class SlideshowFragment : Fragment() {
                 val orders = ordenes.map { orden ->
                     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                     val dateTime = LocalDateTime.parse(orden.fecha, formatter)
-                    val date = dateTime.toLocalDate()
+                    val limaZone = ZoneId.of("America/Lima")
+                    val zonedDateTime = dateTime.atZone(limaZone)
+                    val limaLocalDateTime = zonedDateTime.toLocalDateTime()
 
                     val pago = db.pagoDao().getByOrderId(orden.id)
                     val ordenDetalle = db.ordenDetalleDao().getByOrderId(orden.id)
@@ -62,7 +65,7 @@ class SlideshowFragment : Fragment() {
                         items = cartItems,
                         total = orden.total,
                         status = when (orden.estado) {
-                            "ATENDIDO" -> OrderStatus.ATENDIDO
+                            "APROBADO" -> OrderStatus.ATENDIDO
                             "RECHAZADO" -> OrderStatus.RECHAZADO
                             else -> OrderStatus.ATENDIDO
                         },
@@ -72,7 +75,7 @@ class SlideshowFragment : Fragment() {
                             "Amex" -> PaymentMethod.AMEX
                             else -> PaymentMethod.VISA
                         },
-                        paymentDate = date
+                        paymentDate = limaLocalDateTime
                     )
                 }
                 withContext(Dispatchers.Main) {
